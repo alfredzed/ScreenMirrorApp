@@ -47,3 +47,13 @@ ScreenMirrorServer.exe --transport usb --monitor 2 --encoder auto
 ## 同梱する外部コンポーネント
 
 USB転送用にlibimobiledevice/libusbmuxd系の`iproxy` Windowsバイナリを同梱します。ライセンス文は`licenses`フォルダにあります。配布元はlibimobiledevice-win32/imobiledevice-net v1.3.17です。
+
+## 起動時メニュー
+
+`ScreenMirrorServer.exe`を引数なしで起動すると、コンソールに設定メニューが表示されます。
+
+1. USB直結
+2. Wi-Fi / LAN
+3. USB + Wi-Fi/LAN
+
+続けて表示モニター番号とエンコーダー（auto / nvenc / qsv / amf / x264）を選択できます。通常は各項目でEnterを押すだけで既定値が使われます。既存のコマンドライン引数を指定した場合は、従来どおり対話メニューを省略します。

@@ -174,6 +174,34 @@ def parse_args():
     return parser.parse_args()
 
 
+def configure_interactively(parsed):
+    """Show a simple console menu when the EXE is launched without arguments."""
+    if len(sys.argv) > 1 or not sys.stdin.isatty():
+        return parsed
+
+    print("\n=== ScreenMirror Touch Display Server ===")
+    print("接続方式を選択してください")
+    print("  1. USB直結")
+    print("  2. Wi-Fi / LAN")
+    print("  3. USB + Wi-Fi/LAN (両方待ち受け)")
+    transport = input("番号 [1]: ").strip() or "1"
+    parsed.transport = {"1": "usb", "2": "wifi", "3": "auto"}.get(transport, "usb")
+
+    monitor = input(f"表示するモニター番号 [1]: ").strip()
+    if monitor.isdigit() and int(monitor) > 0:
+        parsed.monitor = int(monitor)
+
+    print("エンコーダーを選択してください: auto / nvenc / qsv / amf / x264")
+    encoder = input("エンコーダー [auto]: ").strip().lower() or "auto"
+    if encoder in {"auto", "nvenc", "qsv", "amf", "x264"}:
+        parsed.encoder = encoder
+
+    if parsed.transport in ("wifi", "auto"):
+        print(f"Wi-Fi/LANポート [{parsed.port}]、USBポート [{parsed.usb_port}]を使用します")
+    print(f"選択: transport={parsed.transport}, monitor={parsed.monitor}, encoder={parsed.encoder}\n")
+    return parsed
+
+
 async def main() -> None:
     global capturer
     assert options is not None
@@ -211,7 +239,7 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    options = parse_args()
+    options = configure_interactively(parse_args())
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
