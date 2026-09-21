@@ -14,7 +14,7 @@ a = Analysis(
     ['server.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('tools', 'tools')],
     hiddenimports=[
         'cv2',
         'numpy',

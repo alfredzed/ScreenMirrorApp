@@ -176,23 +176,31 @@ def parse_args():
 
 def configure_interactively(parsed):
     """Show a simple console menu when the EXE is launched without arguments."""
-    if len(sys.argv) > 1 or not sys.stdin.isatty():
+    if len(sys.argv) > 1:
         return parsed
+
+    def ask(prompt: str, default: str = "") -> str:
+        try:
+            return input(prompt).strip()
+        except (EOFError, OSError):
+            # Double-clicked EXEs can have no stdin; continue with defaults.
+            print("入力を受け取れないため既定値を使用します。")
+            return default
 
     print("\n=== ScreenMirror Touch Display Server ===")
     print("接続方式を選択してください")
     print("  1. USB直結")
     print("  2. Wi-Fi / LAN")
     print("  3. USB + Wi-Fi/LAN (両方待ち受け)")
-    transport = input("番号 [1]: ").strip() or "1"
+    transport = ask("番号 [1]: ", "1") or "1"
     parsed.transport = {"1": "usb", "2": "wifi", "3": "auto"}.get(transport, "usb")
 
-    monitor = input(f"表示するモニター番号 [1]: ").strip()
+    monitor = ask("表示するモニター番号 [1]: ", "")
     if monitor.isdigit() and int(monitor) > 0:
         parsed.monitor = int(monitor)
 
     print("エンコーダーを選択してください: auto / nvenc / qsv / amf / x264")
-    encoder = input("エンコーダー [auto]: ").strip().lower() or "auto"
+    encoder = ask("エンコーダー [auto]: ", "auto").lower() or "auto"
     if encoder in {"auto", "nvenc", "qsv", "amf", "x264"}:
         parsed.encoder = encoder
 
