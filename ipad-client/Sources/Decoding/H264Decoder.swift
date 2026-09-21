@@ -75,21 +75,27 @@ final class H264Decoder {
         }
         session = nil
 
-        let parameterSetPointers: [UnsafePointer<UInt8>] = [
-            sps.withUnsafeBytes { $0.bindMemory(to: UInt8.self).baseAddress! },
-            pps.withUnsafeBytes { $0.bindMemory(to: UInt8.self).baseAddress! },
-        ]
-        let parameterSetSizes: [Int] = [sps.count, pps.count]
-
         var newFormatDescription: CMFormatDescription?
-        let status = CMVideoFormatDescriptionCreateFromH264ParameterSets(
-            allocator: kCFAllocatorDefault,
-            parameterSetCount: 2,
-            parameterSetPointers: parameterSetPointers,
-            parameterSetSizes: parameterSetSizes,
-            nalUnitHeaderLength: 4,
-            formatDescriptionOut: &newFormatDescription
-        )
+        // The pointers must remain valid for the duration of the VideoToolbox call.
+        // Do not build an array of pointers outside these nested Data scopes.
+        let status = sps.withUnsafeBytes { spsBytes in
+            pps.withUnsafeBytes { ppsBytes in
+                guard let spsBase = spsBytes.bindMemory(to: UInt8.self).baseAddress,
+                      let ppsBase = ppsBytes.bindMemory(to: UInt8.self).baseAddress else {
+                    return OSStatus(kCMFormatDescriptionError_InvalidParameter)
+                }
+                let pointers: [UnsafePointer<UInt8>] = [spsBase, ppsBase]
+                let sizes = [sps.count, pps.count]
+                return CMVideoFormatDescriptionCreateFromH264ParameterSets(
+                    allocator: kCFAllocatorDefault,
+                    parameterSetCount: 2,
+                    parameterSetPointers: pointers,
+                    parameterSetSizes: sizes,
+                    nalUnitHeaderLength: 4,
+                    formatDescriptionOut: &newFormatDescription
+                )
+            }
+        }
         if status == noErr {
             formatDescription = newFormatDescription
         } else {
