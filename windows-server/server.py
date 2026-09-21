@@ -142,7 +142,9 @@ def find_iproxy(explicit: str) -> str | None:
         return explicit if Path(explicit).is_file() else None
     roots = [Path(__file__).resolve().parent]
     if getattr(sys, "frozen", False):
-        roots.insert(0, Path(sys.executable).resolve().parent)
+        exe_root = Path(sys.executable).resolve().parent
+        roots.insert(0, exe_root)
+        roots.insert(1, exe_root / "_internal")
     candidates = tuple(
         candidate
         for root in roots
