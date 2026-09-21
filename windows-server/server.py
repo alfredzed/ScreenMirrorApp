@@ -254,6 +254,13 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         pass
+    except Exception as exc:
+        print(f"[ScreenMirrorApp] 起動に失敗しました: {exc}")
+        print("必要なファイル、USB接続、Apple Devices、iproxyを確認してください。")
+        try:
+            input("Enterキーで終了します...")
+        except (EOFError, OSError):
+            time.sleep(5)
     finally:
         if capturer is not None:
             capturer.close()
