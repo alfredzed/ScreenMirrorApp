@@ -1,0 +1,11 @@
+# ScreenMirrorApp - Windowsサーバー側 依存ライブラリ
+# Python 3.10〜3.12 を推奨（dxcam/av のホイール対応状況に依存）
+
+websockets>=12.0        # WebSocketサーバー（アプリ層プロトコルの送受信）
+dxcam>=0.0.5            # DXGI Desktop Duplicationによる高速画面キャプチャ（Windows専用）
+mss>=9.0.1              # dxcam非対応環境向けフォールバックキャプチャ
+opencv-python>=4.9.0    # リサイズ・レターボックス/クロップ処理
+numpy>=1.26.0
+av>=12.0.0              # PyAV（libx264によるH.264エンコード）
+pyautogui>=0.9.54       # マウス操作エミュレーション（クリック/ドラッグ/スクロール）
+pynput>=1.7.6           # 予備の入力エミュレーション用（将来の拡張・微調整用）
